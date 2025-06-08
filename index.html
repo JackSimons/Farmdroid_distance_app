@@ -177,6 +177,7 @@
       const afwijking = restNa3 < 1.5 ? restNa3 : 3 - restNa3;
 
       const bearing = richtingInGraden(A_rd, B_rd);
+      const bearing2 = richtingInGraden(B_rd, A_rd);
 
 
 
@@ -189,6 +190,7 @@
         📐 Afwijking van veelvoud van 3 m: <b>${afwijking.toFixed(2)} m</b><br>
 
         🧭 Richting A → B: <b>${bearing.toFixed(2)}°</b>
+        🧭 Richting B → A: <b>${bearing2.toFixed(2)}°</b>
 
       `;
 
