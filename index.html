@@ -126,6 +126,18 @@
 
     }
 
+    function afstandTotOneindigeLijn(A, B, C) {
+      const x0 = C[0], y0 = C[1];
+      const x1 = A[0], y1 = A[1];
+      const x2 = B[0], y2 = B[1];
+      
+      const numerator = Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2*y1 - y2*x1);
+      const denominator = Math.sqrt((y2 - y1)**2 + (x2 - x1)**2);
+      
+      return numerator / denominator;
+    }
+    
+
 
 
     function richtingInGraden(A, B) {
@@ -166,8 +178,9 @@
 
 
 
-      const afstand = afstandTotLijn(A_rd, B_rd, C_rd);
-
+      //const afstand = afstandTotLijn(A_rd, B_rd, C_rd);
+      const afstand = afstandTotOneindigeLijn(A_rd, B_rd, C_rd);
+      
       const rest = afstand - 2 * safety;
 
       const restClean = rest > 0 ? rest : 0;
