@@ -79,15 +79,13 @@
   <script>
 
     // Init map
+    const map = L.map('map').setView([51.5879, 4.3695], 17);
 
-    const map = L.map('map').setView([51.586, 4.372], 16);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-
-      attribution: '© OpenStreetMap contributors'
-
+    // ✅ Satelliet-achtergrondlaag
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics', 
+      maxZoom: 20
     }).addTo(map);
-
 
 
     let markers = [];
