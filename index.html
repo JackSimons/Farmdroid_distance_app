@@ -1,40 +1,224 @@
 <!DOCTYPE html>
 
-<html lang="nl">
+<html>
 
 <head>
 
-  <meta charset="UTF-8" />
+  <title>Farmdroid afstandstool met kaart</title>
 
-  <title>Proj4 Test</title>
+  <meta charset="utf-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+  <!-- Leaflet CSS -->
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Leaflet JS -->
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Proj4JS for coordinate conversion -->
 
   <script src="https://unpkg.com/proj4@2.9.1/dist/proj4.js"></script>
+
+
+
+  <style>
+
+    #map { height: 400px; width: 100%; margin-bottom: 1em; }
+
+    body { font-family: Arial, sans-serif; margin: 1em; }
+
+  </style>
 
 </head>
 
 <body>
 
-  <h1>Proj4 Test</h1>
+  <h2>Farmdroid afstandstool met kaart</h2>
+
+
+
+  <label>Punt A (lat, lng):</label><br>
+
+  <input id="lat1" value="51.587905"> <input id="lng1" value="4.369577"><br><br>
+
+
+
+  <label>Punt B (lat, lng):</label><br>
+
+  <input id="lat2" value="51.5845106"> <input id="lng2" value="4.370770"><br><br>
+
+
+
+  <label>Punt C (lat, lng):</label><br>
+
+  <input id="lat3" value="51.586550"> <input id="lng3" value="4.374943"><br><br>
+
+
+
+  <label>Safetyzone (min 1.2 meter):</label><br>
+
+  <input id="safety" value="1.2"><br><br>
+
+
+
+  <button onclick="bereken()">Bereken</button>
+
+
+
+  <h3 id="resultaat"></h3>
+
+  <div id="map"></div>
+
+
 
   <script>
 
-    if (typeof proj4 !== 'undefined') {
+    // Init map
 
-      document.body.insertAdjacentHTML('beforeend', '<p>Proj4 is geladen!</p>');
+    const map = L.map('map').setView([51.586, 4.372], 16);
 
-      // Test een simpele projectie
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
-      const rd = '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs';
+      attribution: '© OpenStreetMap contributors'
 
-      const wgs = 'WGS84';
+    }).addTo(map);
 
-      const result = proj4(wgs, rd, [4.9, 52.3]);
 
-      document.body.insertAdjacentHTML('beforeend', `<p>Geprojecteerde coördinaten: ${result}</p>`);
 
-    } else {
+    let markers = [];
 
-      document.body.insertAdjacentHTML('beforeend', '<p style="color:red;">Proj4 is niet geladen!</p>');
+    let polyline;
+
+
+
+    // RD definition
+
+    proj4.defs("EPSG:28992", 
+
+      "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 " +
+
+      "+k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs");
+
+
+
+    function afstandTotLijn(A, B, C) {
+
+      const AB = [B[0] - A[0], B[1] - A[1]];
+
+      const AC = [C[0] - A[0], C[1] - A[1]];
+
+      const dot = AB[0]*AC[0] + AB[1]*AC[1];
+
+      const lenSq = AB[0]*AB[0] + AB[1]*AB[1];
+
+      const t = dot / lenSq;
+
+      const proj = [A[0] + t * AB[0], A[1] + t * AB[1]];
+
+      const dx = C[0] - proj[0];
+
+      const dy = C[1] - proj[1];
+
+      return Math.sqrt(dx*dx + dy*dy);
+
+    }
+
+
+
+    function richtingInGraden(A, B) {
+
+      const dx = B[0] - A[0];
+
+      const dy = B[1] - A[1];
+
+      const rad = Math.atan2(dx, dy);
+
+      let deg = rad * (180 / Math.PI);
+
+      if (deg < 0) deg += 360;
+
+      return deg;
+
+    }
+
+
+
+    function bereken() {
+
+      const A = [parseFloat(document.getElementById("lng1").value), parseFloat(document.getElementById("lat1").value)];
+
+      const B = [parseFloat(document.getElementById("lng2").value), parseFloat(document.getElementById("lat2").value)];
+
+      const C = [parseFloat(document.getElementById("lng3").value), parseFloat(document.getElementById("lat3").value)];
+
+      let safety = Math.max(1.2, parseFloat(document.getElementById("safety").value));
+
+
+
+      const A_rd = proj4("EPSG:4326", "EPSG:28992", A);
+
+      const B_rd = proj4("EPSG:4326", "EPSG:28992", B);
+
+      const C_rd = proj4("EPSG:4326", "EPSG:28992", C);
+
+
+
+      const afstand = afstandTotLijn(A_rd, B_rd, C_rd);
+
+      const rest = afstand - 2 * safety;
+
+      const restClean = rest > 0 ? rest : 0;
+
+      const restNa3 = restClean % 3;
+
+      const afwijking = restNa3 < 1.5 ? restNa3 : 3 - restNa3;
+
+      const bearing = richtingInGraden(A_rd, B_rd);
+
+
+
+      document.getElementById("resultaat").innerHTML = `
+
+        📏 Afstand C tot lijn AB: <b>${afstand.toFixed(2)} m</b><br>
+
+        🛑 Na 2× safetyzone (${(2*safety).toFixed(2)} m): <b>${restClean.toFixed(2)} m</b><br>
+
+        📐 Afwijking van veelvoud van 3 m: <b>${afwijking.toFixed(2)} m</b><br>
+
+        🧭 Richting A → B: <b>${bearing.toFixed(2)}°</b>
+
+      `;
+
+
+
+      // Clear old markers/lines
+
+      markers.forEach(m => map.removeLayer(m));
+
+      markers = [];
+
+      if (polyline) map.removeLayer(polyline);
+
+
+
+      // Draw new markers and line
+
+      markers.push(L.marker([A[1], A[0]]).addTo(map).bindPopup("Punt A"));
+
+      markers.push(L.marker([B[1], B[0]]).addTo(map).bindPopup("Punt B"));
+
+      markers.push(L.marker([C[1], C[0]]).addTo(map).bindPopup("Punt C"));
+
+
+
+      polyline = L.polyline([[A[1], A[0]], [B[1], B[0]]], {color: 'blue'}).addTo(map);
+
+      map.fitBounds(polyline.getBounds(), {padding: [30, 30]});
 
     }
 
