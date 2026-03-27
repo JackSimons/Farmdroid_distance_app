@@ -145,9 +145,9 @@
       const toRad = d => d * Math.PI / 180;
       const toDeg = r => r * 180 / Math.PI;
 
-      const omega1 = toRad(A[0]);
-      const omega2 = toRad(B[0]);
-      const dLapda = toRad(B[1] - A[1]);
+      const omega1 = toRad(A[1]);
+      const omega2 = toRad(B[1]);
+      const dLapda = toRad(B[0] - A[0]);
 
       const y = Math.sin(dLapda) * Math.cos(omega2);
       const x = Math.cos(omega1) * Math.sin(omega2) - Math.sin(omega1) * Math.cos(omega2) * Math.cos(dLapda);
