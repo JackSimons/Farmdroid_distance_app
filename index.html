@@ -155,10 +155,10 @@
       let Omega = Math.atan2(y, x);
       let deg = toDeg(Omega);
 
-      if(deg > 180) deg -= 360;
-      if(deg < -180) deg += 360;
+      //if(deg > 180) deg -= 360;
+      //if(deg < -180) deg += 360;
 
-      return deg;
+      //return deg;
 
       //const dx = B[0] - A[0];
 
@@ -168,9 +168,9 @@
 
       //let deg = rad * (180 / Math.PI);
 
-      //if (deg < 0) deg += 360;
+      if (deg < 0) deg += 360;
 
-      //return deg;
+      return deg;
 
     }
 
