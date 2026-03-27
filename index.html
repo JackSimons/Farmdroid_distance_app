@@ -38,7 +38,7 @@
 
 <body>
 
-  <h2>Farmdroid afstandstool met kaart nog een keer</h2>
+  <h2>Farmdroid afstandstool met kaart nogmaals!</h2>
 
 
 
@@ -142,35 +142,35 @@
 
     function richtingInGraden(A, B) {
 
-      const toRad = d => d * Math.PI / 180;
-      const toDeg = r => r * 180 / Math.PI;
+      //const toRad = d => d * Math.PI / 180;
+      //const toDeg = r => r * 180 / Math.PI;
 
-      const omega1 = toRad(A[0];
-      const omega2 = toRad(B[0];
-      const dLapda = toRad(B[1] - A[1]);
+      //const omega1 = toRad(A[0];
+      //const omega2 = toRad(B[0];
+      //const dLapda = toRad(B[1] - A[1]);
 
-      const y = Math.sin(dLapda) * Math.cos(omega2);
-      const x = Math.cos(omega1) * Math.sin(omega2) - Math.sin(omega1) * Math.cos(omega2) * Math.cos(dLapda);
+      //const y = Math.sin(dLapda) * Math.cos(omega2);
+      //const x = Math.cos(omega1) * Math.sin(omega2) - Math.sin(omega1) * Math.cos(omega2) * Math.cos(dLapda);
 
-      let Omega = Math.atan2(y, x);
-      let deg = toDeg(Omega);
+      //let Omega = Math.atan2(y, x);
+      //let deg = toDeg(Omega);
 
-      if(deg > 180) deg -= 360;
-      if(deg < -180) deg += 360;
+      //if(deg > 180) deg -= 360;
+      //if(deg < -180) deg += 360;
 
-      return deg;
+      //return deg;
 
-      //const dx = B[0] - A[0];
+      const dx = B[0] - A[0];
 
-      //const dy = B[1] - A[1];
+      const dy = B[1] - A[1];
 
-      //const rad = Math.atan2(dx, dy);
+      const rad = Math.atan2(dx, dy);
 
-      //let deg = rad * (180 / Math.PI);
+      let deg = rad * (180 / Math.PI);
 
       //if (deg < 0) deg += 360;
 
-      //return deg;
+      return deg;
 
     }
 
