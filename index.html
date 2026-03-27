@@ -142,17 +142,35 @@
 
     function richtingInGraden(A, B) {
 
-      const dx = B[0] - A[0];
+      const toRad = d => d * Math.PI / 180;
+      const toDeg = r => r * 180 / Math.Pi;
 
-      const dy = B[1] - A[1];
+      const omega1 = toRad(A[0];
+      const omega2 = toRad(B[0];
+      const dLapda = toRad(B[1] - A[1]);
 
-      const rad = Math.atan2(dx, dy);
+      const y = Math.sin(dLapda) * Math.cos(omega2);
+      const x = Math.cos(omega1) * Math.sin(omega2) - Math.sin(omega1) * Math.cos(omega2) * Math.cos(dLapda);
 
-      let deg = rad * (180 / Math.PI);
+      let Omega = Math.atan2(y, x);
+      let deg = toDeg(Omega);
 
-      //if (deg < 0) deg += 360;
+      if(deg > 180) deg -= 360;
+      if(deg < -180) deg += 360;
 
       return deg;
+
+      //const dx = B[0] - A[0];
+
+      //const dy = B[1] - A[1];
+
+      //const rad = Math.atan2(dx, dy);
+
+      //let deg = rad * (180 / Math.PI);
+
+      ////if (deg < 0) deg += 360;
+
+      //return deg;
 
     }
 
