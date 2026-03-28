@@ -241,10 +241,39 @@
       map.fitBounds(polyline.getBounds(), {padding: [30, 30]});
 
     }
-
-    src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"
   </script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
+<script>
+async function extractCoordinates(file, resultElement, inputLat, inputLon) {
+    document.getElementById(resultElement).innerHTML = "⏳ Coördinaten uitlezen...";
+
+    const { data: { text } } = await Tesseract.recognize(file, 'eng');
+    console.log("OCR tekst:", text);
+
+    // Zoek getallen in stijl: 51.58793150
+    const matches = text.match(/-?\d{1,2}\.\d{5,10}/g);
+
+    if (!matches || matches.length < 2) {
+        document.getElementById(resultElement).innerHTML = "❌ Geen coördinaten gevonden";
+        return;
+    }
+
+    const lat = matches[0];
+    const lon = matches[1];
+
+    document.getElementById(inputLat).value = lat;
+    document.getElementById(inputLon).value = lon;
+
+    document.getElementById(resultElement).innerHTML =
+        `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`; }
+
+document.getElementById("uploadA").addEventListener("change", e =>
+    extractCoordinates(e.target.files[0], "resultA", "lat1", "lng1") ); document.getElementById("uploadB").addEventListener("change", e =>
+    extractCoordinates(e.target.files[0], "resultB", "lat2", "lng2") ); document.getElementById("uploadC").addEventListener("change", e =>
+    extractCoordinates(e.target.files[0], "resultC", "lat3", "lng3") ); 
+</script>
+  
 </body>
 
 </html>
