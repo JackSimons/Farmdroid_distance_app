@@ -58,17 +58,11 @@
 
   <input id="safety" value="1.2"><br><br>
 
-
-
   <button onclick="bereken()">Bereken</button>
-
-
 
   <h3 id="resultaat"></h3>
 
   <div id="map"></div>
-
-
 
   <script>
 
@@ -96,34 +90,6 @@
 
       "+k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs");
 
-    async function extractCoordinates(file, resultElement, inputLat, inputLon) {
-      document.getElementById(resultElement).innerHTML = "Coördinaten uitlezen...";
-
-      const {data: {text  } } = await Tesseract.recognize(file, 'eng');
-
-      // Zoek de GPS-waarden (zoals 51.58793150)
-      const matches = text.match(/-?\d{1,2}\.\d{5,10}/g);
-
-      console.log(OCR output:" text);
-      console.log("Matches:", matches);
-
-      if(!matches || matches.length < 2){
-        document.getElementById(resultElement).innerHTML = "Geen coördinaten gevonden.";
-        return;
-      }
-
-      const lat = matches[0];
-      const lon = matches[1];
-
-      document.getElementById(inputLat).value = lat;
-      document.getElementById(inputLon).value = lon;
-
-      document.getElementById(resultElement).innerHTML = 'Gevonden: <br>Lat: <b>${Lat}</b><br>Lon: <b>${lon}</b>';
-    }
-
-    document.getElementById('UploadA').addEventListener('change', (e) => extractCoordinates(e.target.Files[0], "ResultA", "Ax", "Ay"));
-    document.getElementById('UploadB').addEventListener('change', (e) => extractCoordinates(e.target.Files[0], "ResultB", "Bx", "By"));
-    document.getElementById('UploadC').addEventListener('change', (e) => extractCoordinates(e.target.Files[0], "ResultC", "Cx", "Cy"));
 
     function afstandTotLijn(A, B, C) {
 
