@@ -45,15 +45,15 @@
 
   <label>Punt A (lat, lng):</label><br>
 
-  <input id="lat1" value="51.5879"> <input id="lng1" value="4.3696"><br><br> <input type="file" accept="image/*" id="UploadA"> <div id="resultA" class="upload-result"></div> </div>
+  <input id="lat1" value="51.58793151"> <input id="lng1" value="4.36962101"><br><br> <input type="file" accept="image/*" id="UploadA"> <div id="resultA" class="upload-result"></div> </div>
 
   <label>Punt B (lat, lng):</label><br>
 
-  <input id="lat2" value="51.5844"> <input id="lng2" value="4.3707"><br><br> <input type="file" accept="image/*" id="UploadB"> <div id="resultB" class="upload-result"></div> </div>
+  <input id="lat2" value="51.58449268"> <input id="lng2" value="4.37079518"><br><br> <input type="file" accept="image/*" id="UploadB"> <div id="resultB" class="upload-result"></div> </div>
 
   <label>Punt C (lat, lng):</label><br>
 
-  <input id="lat3" value="51.5847"> <input id="lng3" value="4.3756"><br><br> <input type="file" accept="image/*" id="UploadC"> <div id="resultC" class="upload-result"></div> </div>
+  <input id="lat3" value="51.58455367"> <input id="lng3" value="4.37218218"><br><br> <input type="file" accept="image/*" id="UploadC"> <div id="resultC" class="upload-result"></div> </div>
 
   <label>Safetyzone (min 1.2 meter):</label><br>
 
@@ -243,6 +243,7 @@
 
     }
   </script>
+  
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
   <script>
@@ -267,7 +268,8 @@
       document.getElementById(inputLon).value = lon;
 
       document.getElementById(resultElement).innerHTML =
-          `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`; }
+          `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`; 
+  }
 
   document.getElementById("uploadA").addEventListener("change", e => extractCoordinates(e.target.files[0], "resultA", "lat1", "lng1") ); 
   document.getElementById("uploadB").addEventListener("change", e => extractCoordinates(e.target.files[0], "resultB", "lat2", "lng2") );  
