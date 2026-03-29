@@ -39,7 +39,7 @@
 
 <body>
 
-  <h2>Farmdroid afstandstool met kaart en input printscreens nieuw laden verbeterd </h2>
+  <h2>Farmdroid afstandstool met kaart en input printscreens nieuw laden  </h2>
   
   <p>Voer handmatig coördinaten in of upload een screenshot van de FarmDroid-app.</p>
 
@@ -279,49 +279,59 @@ async function cropCoordinatesArea(img) {
 // -------------------------------
 // 2) OCR functie
 // -------------------------------
-async function extractCoordinates(file, resultElement, inputLat, inputLon) {
-    document.getElementById(resultElement).innerHTML = "⏳ Coördinaten uitlezen...";
-
-    // Laad afbeelding
+async function extractCoordinatesFromImage(file, latInput, lonInput) {
     const img = new Image();
     img.src = URL.createObjectURL(file);
-    await img.decode();
 
-    // ✔ Eerst croppen + verbeteren
-    const croppedBlob = await cropCoordinatesArea(img);
+    await new Promise(resolve => img.onload = resolve);
 
-    // ✔ OCR met whitelist (alleen cijfers + . -)
-    const { data: { text } } = await Tesseract.recognize(
-        croppedBlob,
-        "eng",
-        {
-            tessedit_char_whitelist: "0123456789.-",
-            preserve_interword_spaces: 1,
-            tessedit_char_blacklist: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        }
-    );
+    // 1. OCR de hele afbeelding (lage resolutie → snel)
+    const fullResult = await Tesseract.recognize(img, "eng", {
+        tessedit_char_whitelist: "LatLon:0123456789.-",
+    });
 
-    console.log("OCR output:", text);
+    // Zoek het woord "Lat"
+    const latWord = fullResult.data.words.find(w => w.text.includes("Lat"));
 
-    // ✔ Betere regex — pakt ALLE decimalen
-    const matches = text.match(/-?\d+\.\d+/g);
-
-    if (!matches || matches.length < 2) {
-        document.getElementById(resultElement).innerHTML =
-            "❌ Geen coördinaten gevonden";
+    if (!latWord) {
+        console.warn("Lat: niet gevonden in volledige OCR → geen coördinaten.");
         return;
     }
 
-    const lat = matches[0];
-    const lon = matches[1];
+    // 2. Bepaal crop-gebied rondom de Lat/Lon tekst
+    const padding = 30;
+    const cropX = Math.max(latWord.bbox.x0 - padding, 0);
+    const cropY = Math.max(latWord.bbox.y0 - padding, 0);
+    const cropWidth = Math.min(600, img.width - cropX);
+    const cropHeight = Math.min(250, img.height - cropY);
 
-    // ✔ Schrijf naar inputvelden
-    document.getElementById(inputLat).value = lat;
-    document.getElementById(inputLon).value = lon;
+    // 3. Crop canvas maken
+    const canvas = document.createElement("canvas");
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
 
-    document.getElementById(resultElement).innerHTML =
-        `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+    // 4. OCR opnieuw, maar nu nauwkeurig
+    const cropResult = await Tesseract.recognize(canvas, "eng");
+
+    const text = cropResult.data.text;
+
+    const latMatch = text.match(/Lat:\s*([0-9.-]+)/i);
+    const lonMatch = text.match(/Lon:\s*([0-9.-]+)/i);
+
+    if (latMatch && lonMatch) {
+        latInput.value = latMatch[1];
+        lonInput.value = lonMatch[1];
+
+        console.log("GOEDGEKEURDE OCR:", latMatch[1], lonMatch[1]);
+        return { lat: latMatch[1], lon: lonMatch[1] };
+    }
+
+    console.warn("OCR kon Lat/Lon niet vinden in crop.");
 }
+
 
 // -------------------------------
 // 3) Upload event listeners
