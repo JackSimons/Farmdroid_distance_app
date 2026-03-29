@@ -244,37 +244,104 @@
     }
   </script>
   
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
-  <script>
-  async function extractCoordinates(file, resultElement, inputLat, inputLon) {
-      document.getElementById(resultElement).innerHTML = "⏳ Coördinaten uitlezen...";
+<script>
+// -------------------------------
+// 1) PREPROCESSING: crop + contrast
+// -------------------------------
+async function cropCoordinatesArea(img) {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
-      const { data: { text } } = await Tesseract.recognize(file, 'eng');
-      console.log("OCR tekst:", text);
+    // ✔ Crop exact gebied waar Lat/Lon staan
+    const cropY = img.height * 0.55;
+    const cropHeight = img.height * 0.11;
+    const cropX = img.width * 0.05;
+    const cropWidth = img.width * 0.90;
 
-      // Zoek getallen in stijl: 51.58793150
-      const matches = text.match(/-?\d{1,2}\.\d{5,10}/g);
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
 
-      if (!matches || matches.length < 2) {
-          document.getElementById(resultElement).innerHTML = "❌ Geen coördinaten gevonden";
-          return;
-      }
+    // ✔ contrast/brightness + grayscale voor maximale OCR-kwaliteit
+    ctx.filter = "contrast(260%) brightness(150%) grayscale(100%)";
+    ctx.drawImage(
+        img,
+        cropX, cropY, cropWidth, cropHeight,
+        0, 0, cropWidth, cropHeight
+    );
 
-      const lat = matches[0];
-      const lon = matches[1];
+    return new Promise(resolve =>
+        canvas.toBlob(resolve, "image/png")
+    );
+}
 
-      document.getElementById(inputLat).value = lat;
-      document.getElementById(inputLon).value = lon;
+// -------------------------------
+// 2) OCR functie
+// -------------------------------
+async function extractCoordinates(file, resultElement, inputLat, inputLon) {
+    document.getElementById(resultElement).innerHTML = "⏳ Coördinaten uitlezen...";
 
-      document.getElementById(resultElement).innerHTML =
-          `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`; 
-  }
+    // Laad afbeelding
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await img.decode();
 
-  document.getElementById("uploadA").addEventListener("change", e => extractCoordinates(e.target.files[0], "resultA", "lat1", "lng1") ); 
-  document.getElementById("uploadB").addEventListener("change", e => extractCoordinates(e.target.files[0], "resultB", "lat2", "lng2") );  
-  document.getElementById("uploadC").addEventListener("change", e => extractCoordinates(e.target.files[0], "resultC", "lat3", "lng3") ); 
-  </script>
+    // ✔ Eerst croppen + verbeteren
+    const croppedBlob = await cropCoordinatesArea(img);
+
+    // ✔ OCR met whitelist (alleen cijfers + . -)
+    const { data: { text } } = await Tesseract.recognize(
+        croppedBlob,
+        "eng",
+        {
+            tessedit_char_whitelist: "0123456789.-",
+            preserve_interword_spaces: 1,
+            tessedit_char_blacklist: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        }
+    );
+
+    console.log("OCR output:", text);
+
+    // ✔ Betere regex — pakt ALLE decimalen
+    const matches = text.match(/-?\d+\.\d+/g);
+
+    if (!matches || matches.length < 2) {
+        document.getElementById(resultElement).innerHTML =
+            "❌ Geen coördinaten gevonden";
+        return;
+    }
+
+    const lat = matches[0];
+    const lon = matches[1];
+
+    // ✔ Schrijf naar inputvelden
+    document.getElementById(inputLat).value = lat;
+    document.getElementById(inputLon).value = lon;
+
+    document.getElementById(resultElement).innerHTML =
+        `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`;
+}
+
+// -------------------------------
+// 3) Upload event listeners
+// -------------------------------
+document.getElementById("uploadA")
+    .addEventListener("change", e =>
+        extractCoordinates(e.target.files[0], "resultA", "lat1", "lng1")
+    );
+
+document.getElementById("uploadB")
+    .addEventListener("change", e =>
+        extractCoordinates(e.target.files[0], "resultB", "lat2", "lng2")
+    );
+
+document.getElementById("uploadC")
+    .addEventListener("change", e =>
+        extractCoordinates(e.target.files[0], "resultC", "lat3", "lng3")
+    );
+</script>
+
 </body>
 
 </html>
