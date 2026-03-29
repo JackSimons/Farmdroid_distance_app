@@ -338,17 +338,17 @@ async function extractCoordinatesFromImage(file, latInput, lonInput) {
 // -------------------------------
 document.getElementById("uploadA")
     .addEventListener("change", e =>
-        extractCoordinates(e.target.files[0], "resultA", "lat1", "lng1")
+         extractCoordinatesFromImage(e.target.files[0], "resultA", "lat1", "lng1")
     );
 
 document.getElementById("uploadB")
     .addEventListener("change", e =>
-        extractCoordinates(e.target.files[0], "resultB", "lat2", "lng2")
+        extractCoordinatesFromImage(e.target.files[0], "resultB", "lat2", "lng2")
     );
 
 document.getElementById("uploadC")
     .addEventListener("change", e =>
-        extractCoordinates(e.target.files[0], "resultC", "lat3", "lng3")
+        extractCoordinatesFromImage(e.target.files[0], "resultC", "lat3", "lng3")
     );
 </script>
 
