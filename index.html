@@ -39,7 +39,7 @@
 
 <body>
 
-  <h2>Farmdroid afstandstool met kaart en input printscreens nieuw laden ben benieuwd </h2>
+  <h2>Farmdroid afstandstool met kaart en input printscreens nieuw laden ben benieuwd! </h2>
   
   <p>Voer handmatig coördinaten in of upload een screenshot van de FarmDroid-app.</p>
 
@@ -328,7 +328,7 @@ async function extractCoordinatesFromImage(file, resultElement, latInput, lonInp
         lonInput.value = lonMatch[1];
 
         document.getElementById(resultElement).innerHTML =
-        `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`;
+        `📍 Gevonden:<br>Lat: <b>${latInput.value}</b><br>Lon: <b>${lonInput.value}</b>`;
 
         console.log("GOEDGEKEURDE OCR:", latMatch[1], lonMatch[1]);
         return { lat: latMatch[1], lon: lonMatch[1] };
