@@ -279,7 +279,7 @@ async function cropCoordinatesArea(img) {
 // -------------------------------
 // 2) OCR functie
 // -------------------------------
-async function extractCoordinatesFromImage(file, latInput, lonInput) {
+async function extractCoordinatesFromImage(file, resultElement, latInput, lonInput) {
     const img = new Image();
     img.src = URL.createObjectURL(file);
 
@@ -294,6 +294,8 @@ async function extractCoordinatesFromImage(file, latInput, lonInput) {
     const latWord = fullResult.data.words.find(w => w.text.includes("Lat"));
 
     if (!latWord) {
+        document.getElementById(resultElement).innerHTML =
+            "❌ Geen coördinaten gevonden";
         console.warn("Lat: niet gevonden in volledige OCR → geen coördinaten.");
         return;
     }
@@ -325,10 +327,15 @@ async function extractCoordinatesFromImage(file, latInput, lonInput) {
         latInput.value = latMatch[1];
         lonInput.value = lonMatch[1];
 
+        document.getElementById(resultElement).innerHTML =
+        `📍 Gevonden:<br>Lat: <b>${lat}</b><br>Lon: <b>${lon}</b>`;
+
         console.log("GOEDGEKEURDE OCR:", latMatch[1], lonMatch[1]);
         return { lat: latMatch[1], lon: lonMatch[1] };
     }
 
+    document.getElementById(resultElement).innerHTML =
+            "❌ Geen coördinaten gevonden";
     console.warn("OCR kon Lat/Lon niet vinden in crop.");
 }
 
