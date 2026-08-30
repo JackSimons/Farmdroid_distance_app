@@ -176,16 +176,23 @@
 
 
 
-      const A_rd = proj4("EPSG:4326", "EPSG:28992", A);
+      //const A_rd = proj4("EPSG:4326", "EPSG:28992", A);
 
-      const B_rd = proj4("EPSG:4326", "EPSG:28992", B);
+      //const B_rd = proj4("EPSG:4326", "EPSG:28992", B);
 
-      const C_rd = proj4("EPSG:4326", "EPSG:28992", C);
+      //const C_rd = proj4("EPSG:4326", "EPSG:28992", C);
+
+      const A_utm = proj4("EPSG:4326", "EPSG:32631", A);
+
+      const B_utm = proj4("EPSG:4326", "EPSG:32631", B);
+
+      const C_utm = proj4("EPSG:4326", "EPSG:32631", C);
 
 
 
       //const afstand = afstandTotLijn(A_rd, B_rd, C_rd);
-      const afstand = afstandTotOneindigeLijn(A_rd, B_rd, C_rd);
+      //const afstand = afstandTotOneindigeLijn(A_rd, B_rd, C_rd);
+      const afstand = afstandTotOneindigeLijn(A_utm, B_utm, C_utm);
       
       const rest = afstand - 2 * safety;
 
@@ -202,7 +209,7 @@
 
       document.getElementById("resultaat").innerHTML = `
 
-        📏 Afstand C tot lijn AB: <b>${afstand.toFixed(2)} m</b><br>
+        📏 Afstand C tot lijn AB (nu 15cm minder?): <b>${afstand.toFixed(2)} m</b><br>
 
         🛑 Na 2× safetyzone (${(2*safety).toFixed(2)} m): <b>${restClean.toFixed(2)} m</b><br>
 
